@@ -205,7 +205,20 @@ elsewhere on your LAN, switch the adapter to **Bridged**.
 
 ### Security posture — what enabling SSH actually costs you
 
-Turning on Remote Login is a real change in exposure. Measured on this guest:
+**First, what has to be true before any of this is reachable.** None of it is a drive-by:
+
+| Precondition | Is it a real barrier? |
+|---|---|
+| **Remote Login must be deliberately enabled.** macOS ships with it **off**. | ✅ **Yes — this is the real gate.** Nothing below matters until an operator turns it on. |
+| The attacker must know the **account name**. | ⚠️ Weak. macOS account names are usually derived from the owner's real name, and the home directory name gives it away to anyone who ever sees the filesystem. |
+| The attacker must reach the **IP**. | ⚠️ Depends entirely on the adapter. On **NAT**, only the host can reach it — a genuine barrier. On **Bridged**, one `nmap` sweep of the subnet finds it in seconds. |
+| The attacker must present a **credential** — key or password. | ✅ Yes, and it is the one doing the actual work. |
+
+So the honest summary: **the opt-in and the credential are real security; the username and IP are
+obscurity**, and obscurity is worth little once the guest is on a routable network. Design as though
+both are known.
+
+**Second, what the exposure actually is** once Remote Login is on. Measured on this guest:
 
 - **Shutdown is a user-level action on macOS, by design.** Any logged-in user can shut down from the
   Apple menu without a password, so an SSH user doing it via `osascript` is not privilege
