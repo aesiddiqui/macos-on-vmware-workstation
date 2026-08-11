@@ -83,6 +83,9 @@ on** — greyed means *locked*, not *disabled*.
 
 Shared folders **are** supported on macOS guests — `darwin.iso` ships the HGFS driver.
 
+- [ ] **Shut the guest down first.** Shared Folders could not be configured on a running macOS
+      guest — the setting has to be added with the VM powered off, then the guest started again.
+      Trying it live is what makes people conclude shared folders are unsupported on macOS
 - [ ] **VM → Settings → Options → Shared Folders → Always enabled**, add a host folder
 - [ ] In the guest, Finder shows nothing new. **This is expected.** It is mounted at a path Finder
       does not surface:
