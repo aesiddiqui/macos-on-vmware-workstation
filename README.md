@@ -11,7 +11,7 @@ entire point of this repo — see below.
 | Part | What it covers | Status |
 |---|---|---|
 | **[1 · Unlocker](part1-unlocker.md)** | Exposing macOS as a guest type. Why the popular unlocker **silently does nothing** on Workstation 26.x, and what to use instead | ✅ **Validated** on 26.0.0.25388281 (26H1) / Windows 11, 2026-07-22 |
-| **[2 · Obtaining macOS](part2-obtaining-macos.md)** | Pulling a recovery image from Apple's own servers and converting it to a format Workstation will boot (**VMDK, not ISO**) | ⏳ Checklist — not yet validated |
+| **[2 · Obtaining macOS](part2-obtaining-macos.md)** | Pulling a recovery image from Apple's own servers and converting it to a format Workstation will boot (**VMDK, not ISO**) | ✅ **Validated to artifact** 2026-08-11 — 3 versions built; boot proven in Part 3 |
 | **[3 · VM creation & install](part3-vm-creation-and-install.md)** | Wizard settings, the version-dropdown trap, `smc.version`, Disk Utility, the install itself | ⏳ Checklist — not yet validated |
 | **[4 · Post-install](part4-post-install.md)** | VMware Tools via `darwin.iso`, display, network, and headless **SSH** access | ⏳ Checklist — not yet validated |
 
