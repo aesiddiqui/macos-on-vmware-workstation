@@ -18,6 +18,12 @@ entire point of this repo — see below.
 **No binaries are redistributed here** — no `darwin.iso`, no patched VMware files, no unlocker
 release, no macOS image. Everything is fetched from its own maintainer or from Apple.
 
+📋 **[FINDINGS.md](FINDINGS.md)** — every defect and trap hit along the way, with the environment it
+was seen in and steps to reproduce it. Six so far, including one in this repo's own verification
+script. Reported upstream where the project accepts reports
+([BDisp/unlocker#79](https://github.com/BDisp/unlocker/issues/79#issuecomment-5256063426),
+[DrDonk/OC4VM#100](https://github.com/DrDonk/OC4VM/issues/100)).
+
 > **Parts 2–4 are actively being validated.** Each checklist is replaced with the real captured
 > output as it is run on hardware, and the status column above is updated in the same commit — so
 > what you see is always what has actually been tested. **Watch** or **Star** the repo if you want
