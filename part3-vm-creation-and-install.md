@@ -1,14 +1,15 @@
 # Part 3 — Creating the VM and installing macOS
 
-> **STATUS: VALIDATED ON TWO VERSIONS, 2026-08-11.**
-> macOS **Ventura 13.7.8** (~56 min) and **Sequoia 15** (~54 min) installed end to end on VMware
-> Workstation Pro **26.0.0.25388281** (26H1), Windows 11 host, from recoveryOS VMDKs built in
-> [Part 2](part2-obtaining-macos.md). Everything below is what happened, including three things our
-> own earlier draft got wrong.
+> **STATUS: VALIDATED ON THREE VERSIONS, 2026-08-11.**
+> macOS **Ventura 13.7.8** (~56 min), **Sequoia 15.7.9** (~54 min) and **Tahoe 26** (longer — see
+> Measured results) installed end to end on VMware Workstation Pro **26.0.0.25388281** (26H1),
+> Windows 11 host, from recoveryOS VMDKs built in [Part 2](part2-obtaining-macos.md). Everything
+> below is what happened, including several things our own earlier drafts got wrong.
 >
-> The **Tahoe** VM is configured identically but has **not been booted**. Setup Assistant already
-> drifts measurably between 13 and 15 — see the per-version note in Step 6 — so expect further
-> drift on newer releases and treat the screen list as a shape, not a script.
+> Spanning macOS 2022 → 2026, **nothing structural changed**: no `smc.version` needed on any of
+> them, no CPU-disabled error on hybrid P/E silicon, identical Disk Utility and disk-picker
+> behaviour. What *does* drift is **Setup Assistant** — see the per-version table in Step 6. Treat
+> that screen list as a shape, not a script.
 
 **Prerequisites:** [Part 1](part1-unlocker.md) complete (`tools/Test-UnlockerPatch.ps1` reports
 PATCHED) and a `.vmdk` recovery disk from [Part 2](part2-obtaining-macos.md).
@@ -179,29 +180,44 @@ Nothing here needs an Apple ID or any Apple service.
 
 **Result:** the desktop, Finder and Dock.
 
-> ### Setup Assistant differs by macOS version — the list above is Ventura 13
+> ### Setup Assistant is NOT version-stable — the list above is Ventura 13
 >
-> Validated on **Sequoia 15** as well. Same shape, but five differences, and two of them change
-> where the opt-out lives:
+> Observed across **Ventura 13, Sequoia 15 and Tahoe 26**. Same broad shape every time, but the
+> screens are renamed, reordered, added, folded together — and, most importantly, **the opt-outs
+> move**. Those are the things this guide tells you to click.
 >
-> | Ventura 13 | Sequoia 15 |
-> |---|---|
-> | **Migration Assistant** — *Not Now* link, bottom-left | **Transfer Your Data to This Mac** — the escape is now a **radio button**, *Set up as new*, not a link |
-> | **Create a Computer Account** | **Create a Mac Account** — with a new checkbox, **ticked by default**: *Allow computer account password to be reset with your Apple Account* |
-> | **Sign In with Your Apple ID** | **Sign In to Your Apple Account** (rebranded; *Set Up Later* still bottom-left) |
-> | Separate **Enable Location Services** screen | **Folded into Time Zone** as a checkbox: *Set time zone automatically using current location* |
-> | — | **NEW: Update Mac Automatically** — escape is *Only Download Automatically*, bottom-left |
+> | | Ventura 13 | Sequoia 15 | Tahoe 26 |
+> |---|---|---|---|
+> | Data transfer | **Migration Assistant** — *Not Now* link, bottom-left | **Transfer Your Data to This Mac** — escape is a **radio button**, *Set up as new* | as Sequoia |
+> | Account screen | **Create a Computer Account** | **Create a Mac Account** — new checkbox **ticked by default**: *Allow … password to be reset with your Apple Account* | as Sequoia |
+> | Apple sign-in | **Sign In with Your Apple ID** — *Set Up Later* link, bottom-left | **Sign In to Your Apple Account** — *Set Up Later* still bottom-left | **No link at all.** Escape is hidden under **"Other Sign-In Options" → "Sign In Later in Settings"** |
+> | Location Services | separate screen | folded into **Time Zone** as a checkbox | as Sequoia |
+> | Software update | — | **NEW: Update Mac Automatically** | present, and see the warning below |
+> | Age | — | — | **NEW: Age Range** (Child / Teen / Adult) |
+> | Visuals | standard sheets | standard sheets | **redesigned** — rounded card over a blurred background |
 >
-> Sequoia also **reorders**: data-transfer moves to position 2 (straight after Country/Region), and
-> the account is created **before** Apple Account sign-in — the reverse of Ventura.
+> Sequoia also **reorders** relative to Ventura: data transfer moves to position 2 (straight after
+> Country/Region), and the account is created **before** Apple sign-in — the reverse of Ventura.
 >
-> **Two to watch:**
-> - The *Allow … password to be reset with your Apple Account* box is **on by default**. It is moot
->   if you skip Apple Account sign-in, but untick it deliberately rather than by accident.
-> - The Time Zone screen can show a **timezone that disagrees with the Closest City** you picked.
->   Check the resulting clock rather than trusting the screen.
+> **Three to watch:**
 >
-> Expect further drift on newer releases. Treat the list as a shape, not a script.
+> - **Tahoe hides the Apple-Account escape.** There is no *Set Up Later* link. Follow the Ventura
+>   list and you will conclude an Apple Account is mandatory. It is not — open
+>   **Other Sign-In Options** and choose *Sign In Later in Settings*.
+> - **"Update Mac Automatically" ENABLES it if you click Continue.** The opt-out is
+>   *Only Download Automatically*, bottom-left — and on Tahoe it **had not finished rendering** (a
+>   spinner sat where the link belongs) while *Continue* was already clickable. Easy to enable
+>   automatic macOS updates while believing you disabled them. On a version-pinned test VM that is
+>   the one setting that can silently change what you are testing. Fix afterwards in
+>   **System Settings → General → Software Update → Automatic Updates → Install macOS updates: off**.
+> - The *Allow … password to be reset* box is **on by default** (15 and 26). Moot if you skip Apple
+>   sign-in, but untick it deliberately rather than by accident.
+>
+> Also: **the mouse tracks badly until VMware Tools is installed.** Setup Assistant is exactly when
+> you are making consequential choices with a laggy pointer. Install Tools first thing afterwards.
+>
+> **This list is what we observed, not an exhaustive diff** — not every screen was captured on every
+> version. Expect further drift on newer releases; treat it as a shape, not a script.
 
 ## Step 7 — Detach and snapshot
 
