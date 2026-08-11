@@ -196,7 +196,7 @@ Do this before installing anything into the guest.
 
 | | Ventura 13.7.8 | Sequoia 15 |
 |---|---|---|
-| Guest RAM | 4096 MB | 8192 MB |
+| Guest RAM **during install** | 4096 MB | 8192 MB |
 | Installer's opening estimate | 2 h 17 m | 2 h 52 m |
 | …then revised to | 48 m | 58 m |
 | **Install → Setup Assistant** | **~39 min** | **~44 min** |
