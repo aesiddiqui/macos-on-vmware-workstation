@@ -166,26 +166,65 @@ Start with no window at all, then connect:
 **Measured:** `sshd` accepted connections **~20 seconds** after `vmrun start`, with `uptime`
 reporting `0 users` — nothing logged in at the GUI.
 
-**Remote shutdown — use `osascript`, not `sudo`:**
+**Remote shutdown — use `vmrun stop … soft` from the host.** All three candidates were tested; only
+one works headlessly:
+
+| Method | Works with no GUI session? | Notes |
+|---|---|---|
+| **`vmrun stop <vmx> soft`** (host) | ✅ **yes** | Tools-mediated. Guest down in <25 s, 0 panic reports afterwards |
+| `osascript … shut down` (SSH) | ❌ **no** | Needs an Aqua session. **Fails silently — see below** |
+| `sudo shutdown -h now` (SSH) | ❌ no | Stock macOS `sudo` requires a password; SSH gives it no TTY |
 
 ```powershell
-ssh -i <key> <account>@<guest-ip> "osascript -e 'tell application \"System Events\" to shut down'"
+& "...\vmrun.exe" -T ws stop "<path>\<vm>.vmx" soft
 ```
 
-**Do not use `sudo shutdown -h now` over SSH.** Stock macOS `sudo` requires a password, and there is
-no terminal to type it into:
+> ### ⚠ The `osascript` shutdown fails silently on a headless guest
+>
+> With a user logged in at the desktop it works. With **nobody logged in** — which is the whole
+> point of a headless VM — it fails:
+>
+> ```console
+> $ ssh <host> "osascript -e 'tell application \"System Events\" to shut down'"
+> 36:45: execution error: An error of type -10810 has occurred. (-10810)
+> $ echo $?
+> 0                      # <-- SSH reports SUCCESS. The VM is still running.
+> ```
+>
+> `-10810` is "could not launch the application": System Events needs a GUI session to launch into.
+> The error goes to stderr and **the exit status is 0**, so a script sees success and moves on
+> while the machine stays up.
+>
+> If you do want an in-guest shutdown, ensure a user is logged in and **check the output, not the
+> exit code**. For anything unattended, use `vmrun stop … soft`.
 
-```console
-$ ssh <host> 'sudo -n true'
-sudo: a password is required
-```
-
-The `osascript` form runs as the logged-in user, needs no password and no TTY, and shut the guest
-down cleanly in under 45 seconds when tested. (Alternatively, add a `NOPASSWD` sudoers rule — but
-that is a deliberate weakening of the guest, for a problem `osascript` already solves.)
+For a scripted **restart**, `vmrun reset <vmx> soft` is the equivalent.
 
 **Networking note:** NAT is enough to reach the guest **from its own host**. To reach it from
 elsewhere on your LAN, switch the adapter to **Bridged**.
+
+### Security posture — what enabling SSH actually costs you
+
+Turning on Remote Login is a real change in exposure. Measured on this guest:
+
+- **Shutdown is a user-level action on macOS, by design.** Any logged-in user can shut down from the
+  Apple menu without a password, so an SSH user doing it via `osascript` is not privilege
+  escalation. `sudo` was correctly refused throughout (`sudo: a password is required`).
+- **`PasswordAuthentication` is ON by default.** Key auth working does not disable it — the account
+  password remains a remote attack surface. Once keys work:
+  `PasswordAuthentication no` in `/etc/ssh/sshd_config`, then restart Remote Login.
+- **Restrict who may log in.** *Sharing → Remote Login → Only these users*, not *All users*.
+- **A passphrase-less key means host filesystem access ⇒ guest access.** Anyone who can read your
+  host `~/.ssh` gets in with no further authentication. On a shared or untrusted host, use a
+  passphrase and accept the agent friction.
+- **Keep it on NAT unless you need otherwise.** NAT reaches the guest from its own host only;
+  Bridged exposes it to the whole LAN.
+- **The largest exposure is not shutdown.** An authenticated SSH user has full user-level control —
+  read every file in the home directory, install login items, exfiltrate. Shutdown is simply the
+  most visible thing they could do, and the least damaging.
+- **Host access already implies total VM control.** `vmrun stop`/`start`/`deleteVM` need no guest
+  credentials at all. Anyone at the hypervisor owns the VM regardless of what you configure inside
+  it — that is inherent to virtualisation, not a macOS weakness.
 
 ## Step 6 — Snapshots and maintenance
 

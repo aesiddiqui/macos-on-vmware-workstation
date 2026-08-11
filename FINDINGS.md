@@ -245,6 +245,54 @@ everything else.
 
 ---
 
+## F-12 · The `osascript` remote shutdown fails on a headless guest and returns exit 0
+
+**Status:** observed 2026-08-11 · caught **before publication** by testing the recommendation.
+
+**Severity:** high for automation. A scheduled job would report success and leave the machine
+running.
+
+**Reproduce:**
+
+1. Boot a macOS guest headless (`vmrun start <vmx> nogui`) so **nobody is logged in at the GUI** —
+   `uptime` reports `0 users`.
+2. From the host:
+
+```console
+$ ssh -i <key> <account>@<guest-ip> "osascript -e 'tell application \"System Events\" to shut down'"
+36:45: execution error: An error of type -10810 has occurred. (-10810)
+$ echo $?
+0
+```
+
+3. The VM is **still running**.
+
+**Expected:** either a shutdown, or a non-zero exit.
+
+**Actual:** the error goes to **stderr**, the exit status is **0**, and the guest keeps running.
+`-10810` is "the application could not be launched" — System Events needs an Aqua session, which a
+headless guest does not have.
+
+**Why it nearly shipped.** It was tested *with a user logged in at the desktop*, where it works
+perfectly, and written up as verified. The precondition was invisible because it was satisfied by
+accident. **The recommendation lived in the section about running the VM headlessly** — the exact
+condition under which it fails.
+
+**Use instead**, from the host, which needs no GUI session and was verified clean (0 panic reports
+on the next boot):
+
+```powershell
+& "...\vmrun.exe" -T ws stop "<path>\<vm>.vmx" soft
+```
+
+Same family as [F-1](#f-1--unlocker-302-reports-success-while-patching-nothing),
+[F-6](#f-6--a-defect-in-this-repos-own-verification-script-found-by-testing-it) and
+[F-11](#f-11--shutdown-cause-telemetry-is-meaningless-in-a-vm--it-always-says-power-button-held):
+**a control that reports success while doing nothing.** Third instance in this repo, second one
+authored here.
+
+---
+
 ## F-11 · Shutdown-cause telemetry is meaningless in a VM — it always says "power button held"
 
 **Status:** observed 2026-08-11 · not a defect · a diagnostic that looks authoritative and is not.
