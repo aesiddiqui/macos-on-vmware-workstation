@@ -245,42 +245,36 @@ everything else.
 
 ---
 
-## F-10 · "Shut Down Guest" stops a macOS guest, but macOS records it as unclean
+## F-10 · ~~"Shut Down Guest" leaves a macOS guest unclean~~ — **RETRACTED**
 
-**Status:** observed 2026-08-11 · one occurrence · affects VMware's soft-power path on macOS guests.
+**Status:** **RETRACTED 2026-08-11, same day it was published.** The claim was wrong. Kept here
+rather than deleted, because a repo about claims outrunning their evidence should not quietly
+memory-hole its own.
 
-**Severity:** low per event, higher if you are about to snapshot a baseline or shut down on a
-schedule — the failure is invisible until the *next* boot.
+**What was originally claimed:** that **VM → Power → Shut Down Guest** stops a macOS guest but leaves
+macOS recording an unclean shutdown, and that you should therefore shut down only from inside the OS.
 
-**Reproduce:**
+**What actually happened.** The operator started a shutdown **from inside macOS**, it was taking a
+little time, and they then issued a **second** shutdown from the VM level on top of the one already
+in progress. *That collision* produced the unclean state — not the VMware command.
 
-1. With VMware Tools installed and `vmrun checkToolsState` reporting `running`, use
-   **VM → Power → Shut Down Guest** (the soft/graceful command — *not* Power Off).
-2. The VM stops, apparently normally.
-3. Power on again.
+**Retested afterwards, both paths independently:** Apple menu → Shut Down, and VM → Power → Shut Down
+Guest. **Both shut down cleanly.** There is no defect here.
 
-**Expected:** a clean boot, as with any graceful shutdown.
+**What is actually worth knowing:**
 
-**Actual:** macOS reports that it **was not shut down properly**.
+- Don't issue a second shutdown while one is already running. macOS shutdown in a VM can take
+  30–60 seconds — session logout, app termination, APFS unmount — and with modest RAM and no GPU
+  acceleration the teardown looks stalled when it is merely slow.
+- Both shutdown paths are clean when allowed to finish.
+- `sudo shutdown -h now` over SSH is a fine scripted equivalent.
 
-By contrast, shutting down from **Apple menu → Shut Down** inside the guest completes in a few
-seconds and boots clean afterwards. The desktop teardown *looks* slower than the VMware command,
-which makes the fast-but-unclean path the tempting one.
-
-**Recommendation:** on macOS guests, shut down from **inside the OS**. Do not rely on
-**Shut Down Guest** — or `vmrun stop <vmx> soft`, which uses the same path — for anything where
-cleanliness matters, particularly before taking a baseline snapshot.
-
-**For scripted shutdown**, drive macOS's own path over SSH instead:
-
-```powershell
-ssh -i <key> <account>@<guest-ip> "sudo shutdown -h now"
-```
-
-**Scope:** observed once, on Ventura 13.7.8 under Workstation 26.0.0.25388281 with Tools running.
-Not established whether it affects other macOS versions, or whether some Tools component is
-mishandling the soft-power request. **[unverified]** as a general claim — reported here as what
-happened.
+**How this got published, since that is the transferable part.** The operator reported *"I used shut
+down guest, not power off… even then it says it was not shut down clean."* That reads as
+*Shut Down Guest → unclean*, and it was written up as a defect in someone else's software on the
+strength of one ambiguous sentence. **The unasked question was what happened immediately before.**
+A single observation of a symptom is not a diagnosis, and attributing a defect to a third party
+deserves a higher bar than that.
 
 ---
 
