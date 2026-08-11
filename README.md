@@ -25,6 +25,26 @@ release, no macOS image. Everything is fetched from its own maintainer or from A
 
 ---
 
+## Does this match what you're seeing?
+
+If any of these is your situation, you're in the right place — they are all the **same single
+cause**, explained below:
+
+- **macOS / Apple Mac OS X is missing from the guest operating system list** in VMware Workstation.
+- The unlocker **said `Finished!` but nothing happened** — no macOS option, no change at all.
+- The unlocker printed **`0 File(s) copied`** over and over while backing up.
+- It failed with **`FileNotFoundError`** on
+  `SOFTWARE\Wow6432Node\VMware, Inc.\VMware Workstation`.
+- It reported a **blank install path and blank product version** for a VMware that is clearly
+  installed.
+- **`darwin.iso` never downloaded** — `HTTP Error 404` from `softwareupdate.vmware.com`.
+- macOS support **worked, then disappeared after a VMware Workstation update**.
+- You are on **Workstation Pro 26.x / 26H1** and every unlocker guide you can find was written for
+  version 15.
+
+Running as Administrator, disabling antivirus, re-downloading the unlocker and reinstalling
+Workstation will not fix any of them.
+
 ## Start here if you already have a problem
 
 **Your unlocker printed `Finished!` and macOS still isn't in the New Virtual Machine wizard.**
