@@ -1,13 +1,15 @@
 # Part 2 — Obtaining a macOS installation image
 
-> **STATUS: VALIDATED to artifact, 2026-08-11.**
+> **STATUS: VALIDATED, 2026-08-11.**
 > Three recovery images were downloaded from Apple and converted to VMware VMDK on Windows 11 with
 > Workstation Pro 26.0.0.25388281. Everything below is what actually happened, including the parts
 > that went wrong.
 >
-> **What is not yet proven:** that the resulting VMDKs *boot*. That is
-> [Part 3](part3-vm-creation-and-install.md), and until it passes, treat "bootable" as expected
-> rather than demonstrated. Sections marked **[unverified]** were not exercised.
+> **Boot confirmed:** the Ventura VMDK, attached as a second SATA disk, booted to the Apple logo and
+> on to macOS Recovery, where Disk Utility erased the target disk to APFS. Sequoia and Tahoe were
+> produced identically but have **not** been booted yet.
+>
+> Sections marked **[unverified]** were not exercised.
 
 ---
 
@@ -224,9 +226,9 @@ re-downloading.
 - [x] Output is a `.vmdk`, non-zero, reported by `qemu-img info` as `vmdk` /
       `monolithicSparse`
 - [x] `macrecovery` reports `Image verification complete!` against the chunklist
-- [ ] Workstation accepts it via **Add Disk → Use an existing virtual disk** with no conversion
-      prompt — *[Part 3](part3-vm-creation-and-install.md)*
-- [ ] It boots to macOS Recovery — *[Part 3](part3-vm-creation-and-install.md)*
+- [x] Workstation accepts it via **Add Disk → Use an existing virtual disk** with no conversion
+      prompt — confirmed on all three
+- [x] It boots to macOS Recovery — confirmed on Ventura (`darwin22-64`); Sequoia and Tahoe untested
 
 ## Licensing note
 

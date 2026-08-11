@@ -15,3 +15,6 @@ Thumbs.db
 # Local scratch
 *.log
 scratch/
+
+# Local session state — never published
+.claude/
