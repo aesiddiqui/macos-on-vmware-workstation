@@ -245,6 +245,45 @@ everything else.
 
 ---
 
+## F-11 · Shutdown-cause telemetry is meaningless in a VM — it always says "power button held"
+
+**Status:** observed 2026-08-11 · not a defect · a diagnostic that looks authoritative and is not.
+
+**Severity:** high for anyone diagnosing shutdown problems, because it produces a confident wrong
+answer every time.
+
+The usual way to ask macOS whether the last shutdown was clean:
+
+```console
+$ pmset -g log | grep -i "shutdown cause"
+2026-08-11 16:03:09  ShutdownCause  SMC shutdown cause: 3: Power button pressed for > 4 sec
+2026-08-11 16:04:34  ShutdownCause  SMC shutdown cause: 3: Power button pressed for > 4 sec
+2026-08-11 16:12:09  ShutdownCause  SMC shutdown cause: 3: Power button pressed for > 4 sec
+```
+
+On real hardware, **cause 3 means someone held the power button** — a hard power-off. Here it is
+reported for **three consecutive shutdowns that were all clean**, including two verified by hand
+(Apple menu → Shut Down, and VM → Power → Shut Down Guest) and one issued remotely over SSH via
+`osascript`.
+
+**The virtual SMC reports cause 3 regardless of how the guest was shut down.** The value carries no
+information in a VM.
+
+**Do not use it to diagnose cleanliness.** Use instead:
+
+- whether macOS itself complains on the next boot;
+- `ls /Library/Logs/DiagnosticReports/*.panic` — genuine panics do get recorded;
+- for scripted checks, the exit status of the shutdown command you issued.
+
+This is the same shape as [F-1](#f-1--unlocker-302-reports-success-while-patching-nothing) and
+[F-6](#f-6--a-defect-in-this-repos-own-verification-script-found-by-testing-it): an instrument
+reporting a value it cannot actually measure, in a form indistinguishable from a real reading.
+Confirmed against [F-10](#f-10--shut-down-guest-leaves-a-macos-guest-unclean--retracted) below — the
+shutdown that *was* genuinely unclean, and the ones that were fine, all produce identical output
+here.
+
+---
+
 ## F-10 · ~~"Shut Down Guest" leaves a macOS guest unclean~~ — **RETRACTED**
 
 **Status:** **RETRACTED 2026-08-11, same day it was published.** The claim was wrong. Kept here

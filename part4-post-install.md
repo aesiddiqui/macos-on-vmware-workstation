@@ -155,6 +155,35 @@ ssh -i $env:USERPROFILE\.ssh\id_ed25519_macos_lab <account>@<guest-ip>
 > reach the VM. For a NAT-only lab guest that is usually a fair trade, and it avoids depending on an
 > ssh-agent. Decide deliberately rather than by default.
 
+### Driving the guest headlessly (verified)
+
+Start with no window at all, then connect:
+
+```powershell
+& "...\vmrun.exe" -T ws start "<path>\<vm>.vmx" nogui
+```
+
+**Measured:** `sshd` accepted connections **~20 seconds** after `vmrun start`, with `uptime`
+reporting `0 users` — nothing logged in at the GUI.
+
+**Remote shutdown — use `osascript`, not `sudo`:**
+
+```powershell
+ssh -i <key> <account>@<guest-ip> "osascript -e 'tell application \"System Events\" to shut down'"
+```
+
+**Do not use `sudo shutdown -h now` over SSH.** Stock macOS `sudo` requires a password, and there is
+no terminal to type it into:
+
+```console
+$ ssh <host> 'sudo -n true'
+sudo: a password is required
+```
+
+The `osascript` form runs as the logged-in user, needs no password and no TTY, and shut the guest
+down cleanly in under 45 seconds when tested. (Alternatively, add a `NOPASSWD` sudoers rule — but
+that is a deliberate weakening of the guest, for a problem `osascript` already solves.)
+
 **Networking note:** NAT is enough to reach the guest **from its own host**. To reach it from
 elsewhere on your LAN, switch the adapter to **Bridged**.
 
