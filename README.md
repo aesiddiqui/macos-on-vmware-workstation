@@ -19,7 +19,7 @@ entire point of this repo — see below.
 release, no macOS image. Everything is fetched from its own maintainer or from Apple.
 
 📋 **[FINDINGS.md](FINDINGS.md)** — every defect and trap hit along the way, with the environment it
-was seen in and steps to reproduce it. Eight so far, including one in this repo's own verification
+was seen in and steps to reproduce it. Nine so far, including one in this repo's own verification
 script. Reported upstream where the project accepts reports
 ([BDisp/unlocker#79](https://github.com/BDisp/unlocker/issues/79#issuecomment-5256063426),
 [DrDonk/OC4VM#100](https://github.com/DrDonk/OC4VM/issues/100)).

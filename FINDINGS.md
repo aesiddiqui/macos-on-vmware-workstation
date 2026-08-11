@@ -194,6 +194,49 @@ updates → Security updates only**, which is the default a fresh install lands 
 
 ---
 
+## F-9 · "Clipboard doesn't work" is usually the modifier key, not VMware Tools
+
+**Status:** resolved 2026-08-11 · not a defect in anything — a diagnosis trap.
+
+**Severity:** high in wasted time. The common advice for this symptom is "reinstall VMware Tools",
+which is slow, requires a system-extension approval and a restart, and does not fix it.
+
+**Symptom:** copy/paste appears dead in both directions on a fresh macOS guest, immediately after a
+successful VMware Tools install.
+
+**Actual cause:** in a macOS guest, paste is **Cmd+V** — and VMware maps **Cmd to the Windows key**
+on a PC keyboard. `Ctrl+V` inside macOS does nothing at all, silently. The clipboard was working the
+whole time.
+
+| Action | Keys |
+|---|---|
+| Copy on the Windows host | `Ctrl+C` |
+| Paste into the macOS guest | **`Win+V`** |
+| Copy in the macOS guest | **`Win+C`** |
+| Paste on the Windows host | `Ctrl+V` |
+
+**Check the cheap thing first.** Before reinstalling anything, ask the host whether Tools is even
+the problem:
+
+```powershell
+& "C:\Program Files\VMware\VMware Workstation\vmrun.exe" -T ws checkToolsState "<path>\<vm>.vmx"
+```
+
+`running` means Tools is installed, loaded and talking to the hypervisor. At that point the fault is
+**not** Tools, and reinstalling it cannot help. That one command separates "Tools broken" from
+everything else.
+
+**Two things this was NOT, both checked and eliminated:**
+
+- **Guest isolation.** *VM → Settings → Options → Guest Isolation* showed *Enable copy and paste* and
+  *Enable drag and drop* both **ticked**. They appear greyed out while the VM is powered on — greyed
+  means *locked*, not *disabled*. Easy to misread as the cause; it was checked and it was not.
+- **A failed system extension.** The Tools installer does raise *"System Extension Blocked"* and does
+  need an **Allow** in *Privacy & Security* followed by a restart — a real step people miss. But it
+  had been approved here, which `checkToolsState` confirmed.
+
+---
+
 ## F-6 · A defect in this repo's own verification script, found by testing it
 
 **Status:** fixed, 2026-08-11 · recorded because it is the same class the repo is about.
