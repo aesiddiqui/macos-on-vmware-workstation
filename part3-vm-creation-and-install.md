@@ -23,7 +23,7 @@ PATCHED) and a `.vmdk` recovery disk from [Part 2](part2-obtaining-macos.md).
 | Firmware | **EFI** | Automatic for macOS guests |
 | **Processors** | **1 socket × 4 cores** | See the single-socket trap below |
 | Memory | **4096 MB** | Genuinely sufficient — see Measured results |
-| Hard disk (target) | **SATA, 80 GB**, single file, not pre-allocated | Thin; consumed ~20 GB after install |
+| Hard disk (target) | **SATA, 80 GB**, single file, not pre-allocated | Thin; the VM folder reached **31 GB** on the host after install + Tools + one snapshot |
 | Recovery disk | **SATA**, *Use an existing virtual disk* | A second **hard disk**, never a CD/DVD |
 | Network | **NAT** | Required — the installer downloads the OS |
 | Installer media | **"I will install the operating system later"** | |
@@ -175,7 +175,7 @@ Do this before installing anything into the guest.
 | Setup Assistant to desktop | **~17 min** |
 | **Total** | **~56 min** |
 | Installer's own first estimate | 2 h 17 min |
-| Disk consumed | ~20 GB of the 80 GB thin disk |
+| Disk consumed | **31 GB** on the host after install + VMware Tools + one snapshot |
 
 ### Three things that did NOT happen
 

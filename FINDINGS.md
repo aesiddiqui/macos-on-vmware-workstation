@@ -150,6 +150,50 @@ rather than resolving it in favour of the positive.
 
 ---
 
+## F-7 · macOS guests are single-socket — allocate cores, not sockets
+
+**Status:** documented · not a defect, undocumented behaviour that produces a scary warning.
+
+Configuring **2 processors × 2 cores** on a `darwin*` guest produces:
+
+> *"The virtual machine might not run properly because it is configured to use more virtual
+> processor sockets than the guest supports."*
+
+Real Macs are single-socket and VMware enforces it for macOS guests. **1 processor × 4 cores per
+processor** gives the same four cores with a topology the guest accepts, and the warning clears.
+
+**Why it matters beyond tidiness:** the fix must be applied *before* installing macOS. Changing the
+core count after installation is a known breakage — [OC4VM#88](https://github.com/DrDonk/OC4VM/issues/88).
+
+Caught here because VMware warned at configuration time. Worth stating explicitly because "4 cores"
+is ambiguous in a UI that asks for sockets and cores separately, and the obvious reading is wrong.
+
+---
+
+## F-8 · A macOS VM is not bound by the host Mac's supported-version list
+
+**Status:** observed 2026-08-11 · a capability, not a defect — but it looks alarming.
+
+**Observed:** a Ventura 13.7.8 (22H730) guest offered **macOS Tahoe 26.6.1** (8.8 GB) in Software
+Update. The same operator's **physical 2017 MacBook Pro**, also running Ventura, reports *no update
+available*.
+
+**Why.** macOS upgrade eligibility is decided by **model identifier**, not by hardware capability. A
+`MacBookPro14,x` (2017) is not on Tahoe's supported list, so Apple correctly offers it nothing.
+The VM is not a `MacBookPro14,x` — VMware synthesises an SMBIOS model that *is* on the list, so the
+upgrade is offered. **[calibrated]** — the mechanism is inferred from the two observations plus
+Apple's documented model-based eligibility; confirm on your own guest with `sysctl hw.model`.
+
+**The useful half:** a VM can run macOS versions your physical Mac never will. If your only Mac is
+end-of-life at Ventura, a guest is how you test against anything newer.
+
+**The trap:** if the VM exists *because* it matches a physical machine — same OS version, for
+comparable testing — then taking the upgrade destroys exactly the property you built it for. Version
+parity is the asset. Snapshot before touching Software Update, and consider setting **Automatic
+updates → Security updates only**, which is the default a fresh install lands on.
+
+---
+
 ## F-6 · A defect in this repo's own verification script, found by testing it
 
 **Status:** fixed, 2026-08-11 · recorded because it is the same class the repo is about.
