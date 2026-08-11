@@ -156,7 +156,7 @@ Nothing here needs an Apple ID or any Apple service.
 
 Do this before installing anything into the guest.
 
-- [ ] **Apple menu → Shut Down** (clean shutdown)
+- [ ] **Apple menu → Shut Down** — shut down from *inside* macOS. Do **not** use VM → Power → Shut Down Guest: it stops the VM but macOS records the shutdown as unclean (see [FINDINGS F-10](FINDINGS.md))
 - [ ] **VM → Settings → select the ~2–3 GB recovery hard disk → Remove.** Removes it from the VM
       only — do not delete the `.vmdk` from disk
 - [ ] Power on and confirm it boots from its own disk unaided

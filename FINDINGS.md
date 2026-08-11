@@ -245,6 +245,45 @@ everything else.
 
 ---
 
+## F-10 · "Shut Down Guest" stops a macOS guest, but macOS records it as unclean
+
+**Status:** observed 2026-08-11 · one occurrence · affects VMware's soft-power path on macOS guests.
+
+**Severity:** low per event, higher if you are about to snapshot a baseline or shut down on a
+schedule — the failure is invisible until the *next* boot.
+
+**Reproduce:**
+
+1. With VMware Tools installed and `vmrun checkToolsState` reporting `running`, use
+   **VM → Power → Shut Down Guest** (the soft/graceful command — *not* Power Off).
+2. The VM stops, apparently normally.
+3. Power on again.
+
+**Expected:** a clean boot, as with any graceful shutdown.
+
+**Actual:** macOS reports that it **was not shut down properly**.
+
+By contrast, shutting down from **Apple menu → Shut Down** inside the guest completes in a few
+seconds and boots clean afterwards. The desktop teardown *looks* slower than the VMware command,
+which makes the fast-but-unclean path the tempting one.
+
+**Recommendation:** on macOS guests, shut down from **inside the OS**. Do not rely on
+**Shut Down Guest** — or `vmrun stop <vmx> soft`, which uses the same path — for anything where
+cleanliness matters, particularly before taking a baseline snapshot.
+
+**For scripted shutdown**, drive macOS's own path over SSH instead:
+
+```powershell
+ssh -i <key> <account>@<guest-ip> "sudo shutdown -h now"
+```
+
+**Scope:** observed once, on Ventura 13.7.8 under Workstation 26.0.0.25388281 with Tools running.
+Not established whether it affects other macOS versions, or whether some Tools component is
+mishandling the soft-power request. **[unverified]** as a general claim — reported here as what
+happened.
+
+---
+
 ## F-6 · A defect in this repo's own verification script, found by testing it
 
 **Status:** fixed, 2026-08-11 · recorded because it is the same class the repo is about.
