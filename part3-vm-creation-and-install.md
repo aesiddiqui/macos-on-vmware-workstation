@@ -202,7 +202,7 @@ Do this before installing anything into the guest.
 | **Install → Setup Assistant** | **~39 min** | **~44 min** |
 | Setup Assistant → desktop | ~17 min | ~10 min |
 | **Total** | **~56 min** | **~54 min** |
-| Automatic reboots seen | none observed | **several** |
+| Restarts during install | flicker + bar restart, no firmware splash | identical |
 | Returned to Recovery? | no | no |
 | `smc.version = "0"` needed? | no | no |
 | "CPU has been disabled"? | no | no |
@@ -247,18 +247,27 @@ too:
    [#88](https://github.com/DrDonk/OC4VM/issues/88)) and it did not reproduce here.
 3. **4 GB was not a bottleneck.** The install completed normally.
 
-### Reboots happen, and you still do nothing — confirmed across both versions
+### The restarts are internal to the installer — you do nothing
 
 Some guides tell you to detach the recovery disk between reboots to stop the VM booting back into
 Recovery. **That is not necessary.**
 
-- **Ventura:** no reboots observed at all.
-- **Sequoia:** **rebooted several times.**
-- **Both:** never returned to the macOS Recovery menu, needed no intervention, and ran straight
-  through to Setup Assistant **with the recovery disk still attached the whole time.**
+**Both versions behaved identically.** During the install the screen flickers and the progress bar
+restarts, several times. What you do **not** see is the VMware/EFI splash — so these are the macOS
+installer cycling through its own stages, not the VM power-cycling through firmware.
 
-So reboot behaviour varies by version, and it does not matter. **Do not detach the recovery disk
-mid-install** and do not intervene when the guest restarts. Detach at Step 7, once macOS is up.
+That distinction is the useful one, because it tells you which thing you are looking at:
+
+| What you see | What it is |
+|---|---|
+| Screen flickers, progress bar restarts, **no firmware splash** | Normal. Installer staging. Leave it alone |
+| **VMware/EFI splash**, then macOS Recovery | The guest actually rebooted and booted the recovery disk. Only then is boot order worth looking at |
+
+Neither version ever returned to the Recovery menu, neither needed intervention, and both ran
+through to Setup Assistant **with the recovery disk attached the whole time.**
+
+**Do not detach the recovery disk mid-install** and do not intervene when the screen flickers.
+Detach at Step 7, once macOS is up.
 
 ## Known failure modes
 
