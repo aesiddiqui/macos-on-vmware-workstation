@@ -13,7 +13,7 @@ entire point of this repo — see below.
 | **[1 · Unlocker](part1-unlocker.md)** | Exposing macOS as a guest type. Why the popular unlocker **silently does nothing** on Workstation 26.x, and what to use instead | ✅ **Validated** on 26.0.0.25388281 (26H1) / Windows 11, 2026-07-22 |
 | **[2 · Obtaining macOS](part2-obtaining-macos.md)** | Pulling a recovery image from Apple's own servers and converting it to a format Workstation will boot (**VMDK, not ISO**) | ✅ **Validated** 2026-08-11 — 3 versions built; Ventura VMDK **confirmed bootable** to macOS Recovery |
 | **[3 · VM creation & install](part3-vm-creation-and-install.md)** | Wizard settings, the version-dropdown trap, the single-socket rule, Disk Utility, the install itself | ✅ **Validated on TWO versions** 2026-08-11 — Ventura 13 (~56 min) and Sequoia 15 (~54 min), with the Setup Assistant differences between them |
-| **[4 · Post-install](part4-post-install.md)** | VMware Tools, clipboard, shared folders, and headless **SSH** access | ✅ **Validated** 2026-08-11 — SSH-reachable guest; bash 3.2 / BSD `sed` / no `tac` confirmed |
+| **[4 · Post-install](part4-post-install.md)** | VMware Tools, clipboard, shared folders, and headless **SSH** access | ✅ **Validated on TWO versions** 2026-08-11 — SSH-reachable guests; bash 3.2 / BSD `sed` / no `tac` **identical on 13 and 15** |
 
 **No binaries are redistributed here** — no `darwin.iso`, no patched VMware files, no unlocker
 release, no macOS image. Everything is fetched from its own maintainer or from Apple.

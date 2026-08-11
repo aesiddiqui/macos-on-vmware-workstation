@@ -39,6 +39,10 @@ find them.
 
 - [ ] Let it finish (*"Updating preboot volume…"* is the long tail) → **Restart**
 
+> **Sequoia adds one screen** Ventura does not: **"Select a Destination"**, offering *Install for all
+> users of this computer* with the other two options greyed out. Take the default and continue.
+> Otherwise the flow — authenticate, extension approval, preboot update, restart — is identical.
+
 **Verification — ask the host, not your eyes.** This is the single most useful command in this
 document:
 
@@ -258,26 +262,31 @@ both are known.
 
 ---
 
-## Verified environment
+## Verified environment — and it does not change between macOS versions
 
-Reached over SSH from the Windows host, guest at 4 GB / 1×4 cores:
+Both guests reached over SSH from the Windows host:
 
-```console
-$ sw_vers
-ProductName:    macOS
-ProductVersion: 13.7.8
-BuildVersion:   22H730
+| | **Ventura 13.7.8** (22H730) | **Sequoia 15.7.9** (24G830) |
+|---|---|---|
+| Guest RAM / cores | 4 GB / 1×4 | 8 GB / 1×4 |
+| `hw.model` | `VMware20,1` | `VMware20,1` |
+| `bash --version` | **3.2.57(1)** `darwin22` | **3.2.57(1)** `darwin24` |
+| `zsh --version` | 5.9 | 5.9 |
+| `sed 's/\s/_/'` on `a b` | `a b` — **unchanged** | `a b` — **unchanged** |
+| `declare -A` | `invalid option` | `invalid option` |
+| `tac` | **absent** | **absent** |
 
-$ sysctl -n hw.model
-VMware20,1
-$ sysctl -n machdep.cpu.brand_string
-Intel(R) Core(TM) Ultra 7 165H
+Present on both: `git`, `python3`, `curl`. Absent on both: `brew`, `tac`, `gsed`.
 
-$ /bin/bash --version | head -1
-GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin22)
-```
-
-Present: `git`, `python3`, `curl`. **Absent:** `brew`, `tac`, `gsed`.
+> ### The important part: two major releases apart, nothing moved
+>
+> Apple froze `bash` at **3.2.57 (2007)** over the GPLv3 licence change and has not shipped a newer
+> one since; the BSD userland is equally static. `zsh` is the modern default shell, but **`/bin/bash`
+> is still 3.2** and any script with a `#!/bin/bash` shebang gets it.
+>
+> **So it does not matter which macOS version you build a test guest on.** The failure modes below
+> are identical on 13 and 15. Pick whichever installs fastest rather than chasing version parity
+> with some particular Mac.
 
 ### Why this VM is worth building, if you ship shell code
 
