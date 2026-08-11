@@ -18,6 +18,11 @@ entire point of this repo — see below.
 **No binaries are redistributed here** — no `darwin.iso`, no patched VMware files, no unlocker
 release, no macOS image. Everything is fetched from its own maintainer or from Apple.
 
+> **Parts 2–4 are actively being validated.** Each checklist is replaced with the real captured
+> output as it is run on hardware, and the status column above is updated in the same commit — so
+> what you see is always what has actually been tested. **Watch** or **Star** the repo if you want
+> the validated Part 2 (obtaining the image) when it lands; it is the one in progress now.
+
 ---
 
 ## Start here if you already have a problem
