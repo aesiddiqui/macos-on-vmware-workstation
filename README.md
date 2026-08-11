@@ -13,7 +13,7 @@ entire point of this repo — see below.
 | **[1 · Unlocker](part1-unlocker.md)** | Exposing macOS as a guest type. Why the popular unlocker **silently does nothing** on Workstation 26.x, and what to use instead | ✅ **Validated** on 26.0.0.25388281 (26H1) / Windows 11, 2026-07-22 |
 | **[2 · Obtaining macOS](part2-obtaining-macos.md)** | Pulling a recovery image from Apple's own servers and converting it to a format Workstation will boot (**VMDK, not ISO**) | ✅ **Validated** 2026-08-11 — 3 versions built; Ventura VMDK **confirmed bootable** to macOS Recovery |
 | **[3 · VM creation & install](part3-vm-creation-and-install.md)** | Wizard settings, the version-dropdown trap, the single-socket rule, Disk Utility, the install itself | ✅ **Validated** 2026-08-11 — Ventura 13 installed end to end in **~56 min**; measured timings, and three "known problems" that never happened |
-| **[4 · Post-install](part4-post-install.md)** | VMware Tools via `darwin.iso`, display, network, and headless **SSH** access | ⏳ Checklist — not yet validated |
+| **[4 · Post-install](part4-post-install.md)** | VMware Tools, clipboard, shared folders, and headless **SSH** access | ✅ **Validated** 2026-08-11 — SSH-reachable guest; bash 3.2 / BSD `sed` / no `tac` confirmed |
 
 **No binaries are redistributed here** — no `darwin.iso`, no patched VMware files, no unlocker
 release, no macOS image. Everything is fetched from its own maintainer or from Apple.
@@ -24,10 +24,13 @@ script. Reported upstream where the project accepts reports
 ([BDisp/unlocker#79](https://github.com/BDisp/unlocker/issues/79#issuecomment-5256063426),
 [DrDonk/OC4VM#100](https://github.com/DrDonk/OC4VM/issues/100)).
 
-> **Parts 2–4 are actively being validated.** Each checklist is replaced with the real captured
-> output as it is run on hardware, and the status column above is updated in the same commit — so
-> what you see is always what has actually been tested. **Watch** or **Star** the repo if you want
-> the validated Part 2 (obtaining the image) when it lands; it is the one in progress now.
+> **All four parts are now validated on hardware.** Every checklist here was replaced with real
+> captured output as it was actually run, and the status column above moved in the same commit — so
+> what you are reading is what was tested, on the versions named. Where something was *not*
+> exercised it says **[unverified]** rather than quietly generalising.
+>
+> Validated end to end with **Ventura 13.7.8**. Sequoia and Tahoe images were built identically and
+> have not been booted.
 
 ---
 

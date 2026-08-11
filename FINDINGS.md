@@ -178,11 +178,19 @@ is ambiguous in a UI that asks for sockets and cores separately, and the obvious
 Update. The same operator's **physical 2017 MacBook Pro**, also running Ventura, reports *no update
 available*.
 
-**Why.** macOS upgrade eligibility is decided by **model identifier**, not by hardware capability. A
-`MacBookPro14,x` (2017) is not on Tahoe's supported list, so Apple correctly offers it nothing.
-The VM is not a `MacBookPro14,x` — VMware synthesises an SMBIOS model that *is* on the list, so the
-upgrade is offered. **[calibrated]** — the mechanism is inferred from the two observations plus
-Apple's documented model-based eligibility; confirm on your own guest with `sysctl hw.model`.
+**Why — confirmed.** macOS upgrade eligibility is decided by **model identifier**, not by hardware
+capability. A `MacBookPro14,x` (2017) is not on Tahoe's supported list, so Apple correctly offers it
+nothing. The guest reports something else entirely:
+
+```console
+$ sysctl -n hw.model
+VMware20,1
+$ sysctl -n machdep.cpu.brand_string
+Intel(R) Core(TM) Ultra 7 165H
+```
+
+`VMware20,1` is not an end-of-life Mac, so the upgrade is offered. Note the CPU brand string passes
+through from the host unmodified — the *model* is synthesised, the *processor* is not.
 
 **The useful half:** a VM can run macOS versions your physical Mac never will. If your only Mac is
 end-of-life at Ventura, a guest is how you test against anything newer.
