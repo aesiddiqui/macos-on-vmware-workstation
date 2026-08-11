@@ -59,6 +59,23 @@ To list what your patched install actually supports, search `vmwarebase.dll` for
 > **Get this right before installing.** Changing the core count *after* macOS is installed is a
 > known cause of breakage — see [OC4VM#88](https://github.com/DrDonk/OC4VM/issues/88).
 
+> ### The wizard's RAM default changes with the macOS version you pick
+>
+> VMware sets the memory default from the selected guest OS. Observed on Workstation 26.x:
+>
+> | Guest OS selected | Wizard default |
+> |---|---|
+> | macOS 13 Ventura | **4096 MB** |
+> | macOS 15 Sequoia | **4096 MB** |
+> | macOS 26 Tahoe | **8192 MB** |
+>
+> So clicking through the wizard gives you *different* memory per version without saying so. To
+> follow the 4 GB recommendation below on a newer release, you have to **override the default
+> downward** — it will not be offered.
+>
+> Worth noting VMware itself considers 8 GB appropriate for macOS 26. Our measurements say 4 GB
+> completes the install fine on 13 and 15; we have not tested 4 GB on 26.
+
 > ### Memory: measure FREE RAM, not installed RAM
 >
 > An earlier version of this guide recommended 8 GB "because the host has 32". The host had
