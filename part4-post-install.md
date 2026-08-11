@@ -108,6 +108,9 @@ a new window.)*
 - [ ] **VM → Settings → Display** — Accelerate 3D graphics, raise graphics memory
 - [ ] With Tools running, the guest resolution follows the VMware window when you resize it
 
+**Verified (Sequoia 15):** with Tools running, the guest reported `Resolution: 1677 x 920` —
+a non-standard size matching the VMware window, i.e. auto-resize is working.
+
 **[unverified]** HiDPI/Retina scaling was not exercised. Treat it as best-effort.
 
 ## Step 5 — Headless SSH access (the point of all this)
@@ -178,7 +181,7 @@ one works headlessly:
 
 | Method | Works with no GUI session? | Notes |
 |---|---|---|
-| **`vmrun stop <vmx> soft`** (host) | ✅ **yes** | Tools-mediated. Guest down in <25 s, 0 panic reports afterwards |
+| **`vmrun stop <vmx> soft`** (host) | ✅ **yes** | Tools-mediated. Verified on Ventura 13 and Sequoia 15; exit 0, 0 panic reports afterwards. Allow up to a few minutes — macOS shutdown is not instant |
 | `osascript … shut down` (SSH) | ❌ **no** | Needs an Aqua session. **Fails silently — see below** |
 | `sudo shutdown -h now` (SSH) | ❌ no | Stock macOS `sudo` requires a password; SSH gives it no TTY |
 
