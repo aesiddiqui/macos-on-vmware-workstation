@@ -1,0 +1,17 @@
+# Never commit binaries or images obtained from upstream
+*.iso
+*.zip
+*.exe
+*.dll
+backup-windows/
+tools/darwin*
+
+# OS / editor noise
+Thumbs.db
+.DS_Store
+*.swp
+.vscode/
+
+# Local scratch
+*.log
+scratch/
