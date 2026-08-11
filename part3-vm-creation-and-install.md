@@ -73,8 +73,17 @@ To list what your patched install actually supports, search `vmwarebase.dll` for
 > follow the 4 GB recommendation below on a newer release, you have to **override the default
 > downward** — it will not be offered.
 >
-> Worth noting VMware itself considers 8 GB appropriate for macOS 26. Our measurements say 4 GB
-> completes the install fine on 13 and 15; we have not tested 4 GB on 26.
+> **And on macOS 26 that override goes below a declared floor.** The Memory pane for a Tahoe guest
+> states *"Guest OS recommended **minimum**: 8 GB"* — not merely a recommendation. VMware raised
+> the floor for 26; it did not for 13 or 15.
+>
+> Our measurements show 4 GB completing the install on **13 and 15**. **4 GB on 26 is untested**,
+> and we are not extrapolating to it. If you want a smaller Tahoe guest, install at the default and
+> reduce memory *afterwards* — memory is safely adjustable post-install, and judge the result by the
+> guest's **Memory Pressure** graph rather than by the "memory used" figure.
+>
+> Tahoe is also materially **larger on disk**: its VM folder passed **41 GB** during install, where
+> Ventura settled around 31 GB. Budget accordingly.
 
 > ### Memory: measure FREE RAM, not installed RAM
 >
