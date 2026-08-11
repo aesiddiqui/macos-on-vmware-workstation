@@ -84,6 +84,40 @@ C:\Program Files\VMware\VMware Workstation\
 - The unlocker also downloads `darwin.iso` / `darwinPre15.iso` (the macOS VMware Tools) into the
   install directory.
 
+> ### The macOS support already ships in Workstation — 42 bytes gate it
+>
+> The unlocker does not *add* macOS guest types. They are already in the product.
+>
+> Comparing the stock `vmwarebase.dll` (from the unlocker's own `backup-windows\`) against the
+> patched one, on Workstation 26.0.0.25388281:
+>
+> ```console
+> # identical file size
+> 7837104  backup-windows/vmwarebase.dll       (stock)
+> 7837104  VMware Workstation/vmwarebase.dll   (patched)
+>
+> # the STOCK DLL already contains every macOS guest ID
+> $ grep -ao 'darwin[0-9]\{1,2\}-64' <stock> | sort -uV
+> darwin10-64 ... darwin26-64        # all 17, including macOS 26
+>
+> # and the entire difference between the two files is:
+> $ cmp -l <stock> <patched> | wc -l
+> 42
+> ```
+>
+> **42 bytes** — matching the unlocker's own reported *"42 GOS flags"*. Every guest definition,
+> including each version's recommended memory and disk, is VMware's own and ships in the box. The
+> patch only makes them selectable.
+>
+> Two consequences worth carrying:
+>
+> 1. **The wizard's per-version defaults are VMware's figures, not the unlocker author's.** When the
+>    Memory pane says *"Guest OS recommended minimum: 8 GB"* for a macOS 26 guest, that is VMware's
+>    number, carried in the stock product.
+> 2. It explains why the capability exists at all: **VMware Fusion supports macOS guests officially**
+>    and Workstation shares the codebase, so the tables are present whether or not the product
+>    exposes them.
+
 ### 3.3 References & sources
 
 - BDisp unlocker (maintained fork): <https://github.com/BDisp/unlocker>
