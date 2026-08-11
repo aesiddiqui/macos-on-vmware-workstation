@@ -1,13 +1,14 @@
 # Part 3 — Creating the VM and installing macOS
 
-> **STATUS: VALIDATED, 2026-08-11.**
-> macOS **Ventura 13** installed end to end on VMware Workstation Pro **26.0.0.25388281** (26H1),
-> Windows 11 host, from a recoveryOS VMDK built in [Part 2](part2-obtaining-macos.md). Reached the
-> desktop in **~56 minutes**. Everything below is what happened, including three things our own
-> earlier draft got wrong.
+> **STATUS: VALIDATED ON TWO VERSIONS, 2026-08-11.**
+> macOS **Ventura 13.7.8** (~56 min) and **Sequoia 15** (~54 min) installed end to end on VMware
+> Workstation Pro **26.0.0.25388281** (26H1), Windows 11 host, from recoveryOS VMDKs built in
+> [Part 2](part2-obtaining-macos.md). Everything below is what happened, including three things our
+> own earlier draft got wrong.
 >
-> Validated on **Ventura only**. Sequoia and Tahoe VMs were configured identically and **have not
-> been booted**; details may differ on newer releases.
+> The **Tahoe** VM is configured identically but has **not been booted**. Setup Assistant already
+> drifts measurably between 13 and 15 — see the per-version note in Step 6 — so expect further
+> drift on newer releases and treat the screen list as a shape, not a script.
 
 **Prerequisites:** [Part 1](part1-unlocker.md) complete (`tools/Test-UnlockerPatch.ps1` reports
 PATCHED) and a `.vmdk` recovery disk from [Part 2](part2-obtaining-macos.md).
@@ -150,7 +151,31 @@ Nothing here needs an Apple ID or any Apple service.
 - [ ] Location Services → clear the checkbox → **Don't Use** · Time Zone · Analytics → leave
       unchecked · Screen Time → **Set Up Later** · Choose Your Look
 
-**Result:** the Ventura desktop, Finder and Dock.
+**Result:** the desktop, Finder and Dock.
+
+> ### Setup Assistant differs by macOS version — the list above is Ventura 13
+>
+> Validated on **Sequoia 15** as well. Same shape, but five differences, and two of them change
+> where the opt-out lives:
+>
+> | Ventura 13 | Sequoia 15 |
+> |---|---|
+> | **Migration Assistant** — *Not Now* link, bottom-left | **Transfer Your Data to This Mac** — the escape is now a **radio button**, *Set up as new*, not a link |
+> | **Create a Computer Account** | **Create a Mac Account** — with a new checkbox, **ticked by default**: *Allow computer account password to be reset with your Apple Account* |
+> | **Sign In with Your Apple ID** | **Sign In to Your Apple Account** (rebranded; *Set Up Later* still bottom-left) |
+> | Separate **Enable Location Services** screen | **Folded into Time Zone** as a checkbox: *Set time zone automatically using current location* |
+> | — | **NEW: Update Mac Automatically** — escape is *Only Download Automatically*, bottom-left |
+>
+> Sequoia also **reorders**: data-transfer moves to position 2 (straight after Country/Region), and
+> the account is created **before** Apple Account sign-in — the reverse of Ventura.
+>
+> **Two to watch:**
+> - The *Allow … password to be reset with your Apple Account* box is **on by default**. It is moot
+>   if you skip Apple Account sign-in, but untick it deliberately rather than by accident.
+> - The Time Zone screen can show a **timezone that disagrees with the Closest City** you picked.
+>   Check the resulting clock rather than trusting the screen.
+>
+> Expect further drift on newer releases. Treat the list as a shape, not a script.
 
 ## Step 7 — Detach and snapshot
 
@@ -167,7 +192,36 @@ Do this before installing anything into the guest.
 
 ---
 
-## Measured results — Ventura 13, 2026-08-11
+## Measured results — two versions, same host, 2026-08-11
+
+| | Ventura 13.7.8 | Sequoia 15 |
+|---|---|---|
+| Guest RAM | 4096 MB | 8192 MB |
+| Installer's opening estimate | 2 h 17 m | 2 h 52 m |
+| …then revised to | 48 m | 58 m |
+| **Install → Setup Assistant** | **~39 min** | **~44 min** |
+| Setup Assistant → desktop | ~17 min | ~10 min |
+| **Total** | **~56 min** | **~54 min** |
+| Automatic reboots seen | none observed | **several** |
+| Returned to Recovery? | no | no |
+| `smc.version = "0"` needed? | no | no |
+| "CPU has been disabled"? | no | no |
+
+**Two conclusions worth having:**
+
+1. **The opening estimate is roughly 3× reality on both runs**, then collapses. Expect an absurd
+   first number; it means nothing.
+2. **Doubling RAM did not speed up installation** — 8 GB was marginally *slower*, because Sequoia is
+   a larger download. The phase is bound by the download from Apple, not by memory. **4 GB is
+   sufficient**, and that is now tested rather than assumed. Extra RAM buys post-install
+   responsiveness, not install time.
+
+The two runs differ in *both* OS version and RAM, so this is not a controlled comparison — but the
+direction is unambiguous: more memory did not help.
+
+---
+
+## Detail — Ventura 13, 2026-08-11
 
 | | |
 |---|---|
@@ -193,20 +247,18 @@ too:
    [#88](https://github.com/DrDonk/OC4VM/issues/88)) and it did not reproduce here.
 3. **4 GB was not a bottleneck.** The install completed normally.
 
-### It never went back to Recovery, and needed no intervention
+### Reboots happen, and you still do nothing — confirmed across both versions
 
 Some guides tell you to detach the recovery disk between reboots to stop the VM booting back into
-Recovery. **That was not necessary here.**
+Recovery. **That is not necessary.**
 
-Observed by an operator watching and screenshotting throughout: after the install began, the VM
-**never returned to the macOS Recovery menu**, and no reboot back to Recovery was seen. It ran
-straight through to Setup Assistant with the recovery disk still attached the whole time.
+- **Ventura:** no reboots observed at all.
+- **Sequoia:** **rebooted several times.**
+- **Both:** never returned to the macOS Recovery menu, needed no intervention, and ran straight
+  through to Setup Assistant **with the recovery disk still attached the whole time.**
 
-**Do not detach the recovery disk mid-install.** Detach it at Step 7, once macOS is up.
-
-**Still unknown:** whether any automatic reboot occurred at all, and if so how many. None was
-observed, but the guest was not watched continuously enough to state the count as zero.
-**[unverified]** — the practically important part, that no intervention is required, is confirmed.
+So reboot behaviour varies by version, and it does not matter. **Do not detach the recovery disk
+mid-install** and do not intervene when the guest restarts. Detach at Step 7, once macOS is up.
 
 ## Known failure modes
 
