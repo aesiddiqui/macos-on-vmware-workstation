@@ -80,17 +80,28 @@ To list what your patched install actually supports, search `vmwarebase.dll` for
 >
 > Our measurements show 4 GB completing the install and running fine on **13 and 15**.
 >
-> **4 GB on 26 remains unresolved.** Tahoe was reduced to 4 GB and boot/login *were* noticeably
-> slower — but that was observed **while the host's VMware NAT Service was dead** (see the
-> networking note in [Part 4](part4-post-install.md)), and macOS with no internet stalls on Apple
-> service timeouts during login regardless of memory. The measurement has a broken network inside
-> it and cannot be attributed to RAM. **Not retested yet.**
+> **On 26 we tested it properly, and could not measure a difference.** Boot-to-`sshd` was timed
+> across repeated cold boots at each size, on an otherwise idle guest with the host network healthy:
 >
-> | macOS | Guest RAM | Basis |
-> |---|---|---|
-> | 13 Ventura | **4 GB** | installed and ran fine — measured |
-> | 15 Sequoia | **4 GB** | installed and ran fine — measured |
-> | 26 Tahoe | **8 GB** *(provisional)* | VMware's declared minimum. Our own 4 GB observation was confounded by a host networking fault and is not evidence |
+> | Guest RAM | boot → `sshd` (repeated cold boots) | swap in use | memory free |
+> |---|---|---|---|
+> | 8 GB | 85s, 22s, 16s, 18s | **0.00M** | 92% |
+> | 4 GB | 85s, 85s, 17s | **0.00M** | 88% |
+>
+> Both sizes produce the same two clusters — a **~16–22s** steady state and an **85s outlier that
+> occurs at both**. Landing on exactly 85 repeatedly suggests a fixed timeout somewhere in the boot
+> path rather than memory pressure. **Swap usage is zero at 4 GB**, so an idle Tahoe guest is not
+> memory-starved with 4 GB.
+>
+> An earlier revision of this file claimed 4 GB was visibly degraded on 26. **That was wrong** — the
+> observation was made while the host's VMware NAT Service had crashed, and macOS with no route to
+> the internet stalls on Apple-service timeouts during login regardless of memory. Retested with the
+> network healthy, the effect vanished.
+>
+> **Where that leaves the recommendation:** VMware declares 8 GB the minimum for macOS 26 and that
+> is VMware's own figure, so we default to it. But our data cannot corroborate it *at idle*, and we
+> did **not** test under load — which is the condition a memory floor would actually be about.
+> **[unverified]** whether 4 GB suffices for real work on 26.
 >
 > Memory is safely adjustable post-install, so try a smaller guest if host RAM is short — judge it by
 > the guest's **Memory Pressure** graph, not the "memory used" figure.
