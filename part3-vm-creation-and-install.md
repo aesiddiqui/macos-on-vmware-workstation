@@ -213,8 +213,16 @@ Nothing here needs an Apple ID or any Apple service.
 > - The *Allow … password to be reset* box is **on by default** (15 and 26). Moot if you skip Apple
 >   sign-in, but untick it deliberately rather than by accident.
 >
-> Also: **the mouse tracks badly until VMware Tools is installed.** Setup Assistant is exactly when
-> you are making consequential choices with a laggy pointer. Install Tools first thing afterwards.
+> **Tahoe-specific: the pointer is barely usable before VMware Tools.** On 13 and 15 the mouse
+> behaved normally through Setup Assistant with no Tools installed. On **26 it is severely laggy** —
+> the operator had to move "very, very slowly" to land on a target. Plausibly the redesigned,
+> more GPU-dependent interface running with no graphics acceleration, but that is a guess.
+>
+> It matters because Setup Assistant is precisely where you make consequential, hard-to-notice
+> choices — see the *Update Mac Automatically* warning above, which is exactly the kind of mistake a
+> fighting pointer produces. Go slowly, and install Tools first thing afterwards.
+>
+> **[unverified]** whether VMware Tools resolves it on 26. Expected to, not yet confirmed.
 >
 > **This list is what we observed, not an exhaustive diff** — not every screen was captured on every
 > version. Expect further drift on newer releases; treat it as a shape, not a script.
