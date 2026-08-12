@@ -19,8 +19,8 @@ entire point of this repo — see below.
 release, no macOS image. Everything is fetched from its own maintainer or from Apple.
 
 📋 **[FINDINGS.md](FINDINGS.md)** — every defect and trap hit along the way, with the environment it
-was seen in and steps to reproduce it. Thirteen so far (one retracted), including two authored here's own verification
-script. Reported upstream where the project accepts reports
+was seen in and steps to reproduce it. Thirteen so far — one publicly retracted, and two of them defects in this repo's own
+tooling and advice. Reported upstream where the project accepts reports
 ([BDisp/unlocker#79](https://github.com/BDisp/unlocker/issues/79#issuecomment-5256063426),
 [DrDonk/OC4VM#100](https://github.com/DrDonk/OC4VM/issues/100)).
 
@@ -29,8 +29,8 @@ script. Reported upstream where the project accepts reports
 > what you are reading is what was tested, on the versions named. Where something was *not*
 > exercised it says **[unverified]** rather than quietly generalising.
 >
-> Validated end to end with **Ventura 13.7.8**. Sequoia and Tahoe images were built identically and
-> have not been booted.
+> Validated end to end on **Ventura 13.7.8**, **Sequoia 15.7.9** and **Tahoe 26.6.1** — three
+> macOS releases spanning 2022 to 2026, on one host.
 
 ---
 
