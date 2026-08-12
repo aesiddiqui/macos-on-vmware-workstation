@@ -132,44 +132,51 @@ $ ps -Ao pcpu,comm -r | head -3      # taken over SSH while the GUI was frozen
 
 Safari at 3.5%; the compositor at 191%. The apps were not working — the compositor was.
 
-### What fixed it
+### What fixed it — one line
 
-| Change | Where | Effect |
-|---|---|---|
-| **`mks.enable3d = "TRUE"`** | `.vmx`, guest powered off | **The one that mattered** |
-| `reduceMotion`, animations off | guest | marginal |
-| `reduceTransparency` | guest | **no measurable effect alone** |
-
-```console
-# host, VM powered off — absent by default on every macOS guest we created
+```
 mks.enable3d = "TRUE"
 ```
 
-```bash
-# guest, over SSH — no sudo needed, all reversible
-defaults write com.apple.universalaccess reduceMotion -bool true
-defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
-defaults write com.apple.dock launchanim -bool false
-defaults write com.apple.finder DisableAllAnimations -bool true
-killall Dock; killall Finder
-```
+Added to the `.vmx` with the guest **powered off**. It is **absent by default** from macOS guests
+created through the wizard.
 
-**Measured `WindowServer` CPU, same load throughout:**
+**Measured `WindowServer` CPU, same load throughout (Chrome playing video):**
 
-| State | WindowServer | Desktop |
+| Configuration | WindowServer | Desktop |
 |---|---|---|
-| Defaults, Safari + video | **191%** | frozen, clicks queued for minutes |
-| + `reduceTransparency` only | 104–206% | still froze |
-| **+ `mks.enable3d` + animations off** | **0.0%** idle | responsive |
-| …with Chrome playing video | ~95–127% | **usable** |
+| Defaults | **191%** | frozen, clicks queued for minutes |
+| `reduceTransparency` alone | 104–206% | still froze |
+| `mks.enable3d` **+** five animation tweaks | 95–127% | usable |
+| **`mks.enable3d` alone** | **94–112%** | **usable** |
 
-One core of four is affordable. Two cores plus starved applications was not.
+The last two rows are indistinguishable. **The 3D flag carries the entire improvement.**
 
 Confirm it engaged — `vmware.log` should show the renderer binding to a host adapter:
 
 ```console
 MKS: Renderer adapter luid = 0x15138
 ```
+
+> #### The visual tweaks everyone recommends did nothing here
+>
+> These are the standard advice for a slow macOS guest. All five were applied, measured, then
+> reverted and measured again. **No detectable difference either way**, with 3D enabled:
+>
+> ```bash
+> defaults write com.apple.universalaccess reduceTransparency -bool true
+> defaults write com.apple.universalaccess reduceMotion -bool true
+> defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
+> defaults write com.apple.dock launchanim -bool false
+> defaults write com.apple.finder DisableAllAnimations -bool true
+> ```
+>
+> `reduceTransparency` was also tested **alone, without 3D**: 104–206% CPU and the desktop still
+> froze. It does not address the bottleneck.
+>
+> Recorded rather than omitted, because "turn off transparency and animations" is the first thing
+> every thread suggests, and on this workload it is not the answer. Harmless to apply if you prefer
+> the look; do not expect it to fix anything.
 
 ### Video playback: use Chrome, not Safari
 

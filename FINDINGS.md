@@ -289,9 +289,13 @@ mks.enable3d = "TRUE"
 | State | WindowServer CPU | Desktop |
 |---|---|---|
 | Defaults | **191%** | frozen |
-| + `reduceTransparency` alone | 104–206% | still frozen |
-| **+ `mks.enable3d`** + animations off | **0.0%** idle | responsive |
-| …Chrome playing video | ~95–127% | usable |
+| `reduceTransparency` alone | 104–206% | still frozen |
+| `mks.enable3d` + five animation tweaks | 95–127% | usable |
+| **`mks.enable3d` ALONE** | **94–112%** | **usable** |
+
+The last two rows are indistinguishable. The animation and transparency settings — the standard
+advice for this symptom — were applied, measured, reverted, and measured again with **no detectable
+effect**. The 3D flag is the whole fix.
 
 Confirm with `MKS: Renderer adapter luid = ...` in `vmware.log`.
 
