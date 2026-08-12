@@ -24,7 +24,7 @@ PATCHED) and a `.vmdk` recovery disk from [Part 2](part2-obtaining-macos.md).
 | Version | **match the image** — see table below | The most common cause of a non-booting installer |
 | Firmware | **EFI** | Automatic for macOS guests |
 | **Processors** | **1 socket × 4 cores** | See the single-socket trap below |
-| Memory | **4096 MB** (13/15) · **8192 MB** (26) | Version-dependent — see the RAM note below |
+| Memory | **4096 MB** (13/15) · **8192 MB** (26, provisional) | See the RAM note below |
 | Hard disk (target) | **SATA, 80 GB**, single file, not pre-allocated | Thin; the VM folder reached **31 GB** on the host after install + Tools + one snapshot |
 | Recovery disk | **SATA**, *Use an existing virtual disk* | A second **hard disk**, never a CD/DVD |
 | Network | **NAT** | Required — the installer downloads the OS |
@@ -78,21 +78,22 @@ To list what your patched install actually supports, search `vmwarebase.dll` for
 > states *"Guest OS recommended **minimum**: 8 GB"* — not merely a recommendation. VMware raised
 > the floor for 26; it did not for 13 or 15.
 >
-> **And the floor is real.** Tahoe was reduced to 4 GB after installation and **boot and login were
-> noticeably slower** — a complaint neither 13 nor 15 produced at the same 4 GB. Two independent
-> signals agree: VMware's declared minimum, and observed behaviour. It was put back to 8 GB.
+> Our measurements show 4 GB completing the install and running fine on **13 and 15**.
 >
-> So the recommendation is **version-dependent**:
+> **4 GB on 26 remains unresolved.** Tahoe was reduced to 4 GB and boot/login *were* noticeably
+> slower — but that was observed **while the host's VMware NAT Service was dead** (see the
+> networking note in [Part 4](part4-post-install.md)), and macOS with no internet stalls on Apple
+> service timeouts during login regardless of memory. The measurement has a broken network inside
+> it and cannot be attributed to RAM. **Not retested yet.**
 >
-> | macOS | Recommended guest RAM | Basis |
+> | macOS | Guest RAM | Basis |
 > |---|---|---|
-> | 13 Ventura | **4 GB** | installed and ran fine; measured |
-> | 15 Sequoia | **4 GB** | installed and ran fine; measured |
-> | 26 Tahoe | **8 GB** | VMware's declared minimum, and 4 GB was visibly degraded |
+> | 13 Ventura | **4 GB** | installed and ran fine — measured |
+> | 15 Sequoia | **4 GB** | installed and ran fine — measured |
+> | 26 Tahoe | **8 GB** *(provisional)* | VMware's declared minimum. Our own 4 GB observation was confounded by a host networking fault and is not evidence |
 >
-> Memory is safely adjustable post-install, so try a smaller guest if you are short of host RAM —
-> but judge it by the guest's **Memory Pressure** graph, not the "memory used" figure, and expect
-> 26 to want the full 8.
+> Memory is safely adjustable post-install, so try a smaller guest if host RAM is short — judge it by
+> the guest's **Memory Pressure** graph, not the "memory used" figure.
 >
 > Tahoe is also materially **larger on disk**: its VM folder passed **41 GB** during install, where
 > Ventura settled around 31 GB. Budget accordingly.
