@@ -1,9 +1,9 @@
 # Part 4 — Making the guest actually usable
 
 > **STATUS: VALIDATED ON THREE VERSIONS, 2026-08-11.**
-> VMware Tools, clipboard and key-based SSH working on **Ventura 13.7.8** (22H730), **Sequoia
-> 15.7.9** (24G830) and **Tahoe 26.6.1** (25G76), under VMware Workstation Pro
-> **26.0.0.25388281**. Shared folders verified on 13 and 15. Everything below was observed;
+> VMware Tools, clipboard, shared folders and key-based SSH working on **Ventura 13.7.8**
+> (22H730), **Sequoia 15.7.9** (24G830) and **Tahoe 26.6.1** (25G76), under VMware Workstation Pro
+> **26.0.0.25388281**. Shared folders verified on all three. Everything below was observed;
 > anything not exercised is marked **[unverified]**.
 >
 > **The userland does not change across those four years** — `bash` 3.2.57, BSD `sed`, no `tac` on
