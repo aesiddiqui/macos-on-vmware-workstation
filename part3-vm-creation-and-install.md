@@ -98,13 +98,20 @@ To list what your patched install actually supports, search `vmwarebase.dll` for
 > the internet stalls on Apple-service timeouts during login regardless of memory. Retested with the
 > network healthy, the effect vanished.
 >
-> **Where that leaves the recommendation:** VMware declares 8 GB the minimum for macOS 26 and that
-> is VMware's own figure, so we default to it. But our data cannot corroborate it *at idle*, and we
-> did **not** test under load — which is the condition a memory floor would actually be about.
-> **[unverified]** whether 4 GB suffices for real work on 26.
+> **And under load, memory turned out not to be the constraint either.** Tahoe *was* unusable at
+> first — the desktop froze on opening Safari and playing video. That looked like a memory ceiling
+> and it was not: measured while the GUI was completely wedged, **87% of memory free and 0.00M
+> swap**, at 4 GB *and* at 8 GB. The bottleneck was `WindowServer` software-compositing, and one
+> `.vmx` line fixed it. See **[F-13](FINDINGS.md)**.
+>
+> **Where that leaves the recommendation:** VMware declares 8 GB the minimum for macOS 26, that is
+> VMware's own figure, and we default to it — but **none of our own measurements support a memory
+> floor**, idle or loaded. **[unverified]** whether 4 GB is comfortable on 26 *with 3D enabled*; that
+> specific combination was not retested under load.
 >
 > Memory is safely adjustable post-install, so try a smaller guest if host RAM is short — judge it by
-> the guest's **Memory Pressure** graph, not the "memory used" figure.
+> the guest's **Memory Pressure** graph, not the "memory used" figure. And fix
+> `mks.enable3d` before blaming RAM for anything.
 >
 > Tahoe is also materially **larger on disk**: its VM folder passed **41 GB** during install, where
 > Ventura settled around 31 GB. Budget accordingly.
@@ -245,7 +252,9 @@ Nothing here needs an Apple ID or any Apple service.
 > choices — see the *Update Mac Automatically* warning above, which is exactly the kind of mistake a
 > fighting pointer produces. Go slowly, and install Tools first thing afterwards.
 >
-> **[unverified]** whether VMware Tools resolves it on 26. Expected to, not yet confirmed.
+> **Answered, and it was not Tools.** The lag is the same `WindowServer` software-compositing
+> problem as the desktop freeze — see [F-13](FINDINGS.md). Tools alone does not fix it;
+> `mks.enable3d = "TRUE"` does. Which is why the lag appears *before* Tools is even installed.
 >
 > **This list is what we observed, not an exhaustive diff** — not every screen was captured on every
 > version. Expect further drift on newer releases; treat it as a shape, not a script.

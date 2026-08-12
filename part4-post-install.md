@@ -3,7 +3,7 @@
 > **STATUS: VALIDATED ON THREE VERSIONS, 2026-08-11.**
 > VMware Tools, clipboard, shared folders and key-based SSH working on **Ventura 13.7.8**
 > (22H730), **Sequoia 15.7.9** (24G830) and **Tahoe 26.6.1** (25G76), under VMware Workstation Pro
-> **26.0.0.25388281**. Shared folders verified on all three. Everything below was observed;
+> **26.0.0.25388281**. **Every step below was validated on all three**, unless it says otherwise;
 > anything not exercised is marked **[unverified]**.
 >
 > **The userland does not change across those four years** — `bash` 3.2.57, BSD `sed`, no `tac` on
@@ -112,8 +112,9 @@ a new window.)*
 - [ ] **VM → Settings → Display** — Accelerate 3D graphics, raise graphics memory
 - [ ] With Tools running, the guest resolution follows the VMware window when you resize it
 
-**Verified (Sequoia 15):** with Tools running, the guest reported `Resolution: 1677 x 920` —
-a non-standard size matching the VMware window, i.e. auto-resize is working.
+**Verified on all three:** with Tools running, the guest resolution follows the VMware window. On
+Sequoia the guest reported `Resolution: 1677 x 920` — a non-standard size matching the window, which
+is auto-resize working rather than a preset being picked.
 
 **[unverified]** HiDPI/Retina scaling was not exercised. Treat it as best-effort.
 
@@ -406,7 +407,7 @@ Present on both: `git`, `python3`, `curl`. Absent on both: `brew`, `tac`, `gsed`
 > is still 3.2** and any script with a `#!/bin/bash` shebang gets it.
 >
 > **So it does not matter which macOS version you build a test guest on.** The failure modes below
-> are identical on 13 and 15. Pick whichever installs fastest rather than chasing version parity
+> are identical on 13, 15 and 26. Pick whichever installs fastest rather than chasing version parity
 > with some particular Mac.
 
 ### Why this VM is worth building, if you ship shell code
