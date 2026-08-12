@@ -263,6 +263,15 @@ Do this before installing anything into the guest.
 - [ ] Power on and confirm it boots from its own disk unaided
 - [ ] **Take a snapshot: `clean-install`**
 
+> **Write a description, and keep it under ~1000 characters.** VMware's snapshot description field
+> **truncates silently** — ours was cut mid-sentence with no warning. State what IS in the snapshot
+> and what you would have to redo after restoring; the second half is the part people omit and then
+> regret.
+>
+> Include anything **host-side** that the snapshot depends on — `.vmx` settings are invisible from
+> inside the guest, so a future restore can lose them without any symptom except "this VM feels
+> slow". `mks.enable3d` is the obvious one (see [Part 4](part4-post-install.md)).
+
 ---
 
 ## Measured results — two versions, same host, 2026-08-11
