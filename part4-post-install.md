@@ -113,6 +113,110 @@ a non-standard size matching the VMware window, i.e. auto-resize is working.
 
 **[unverified]** HiDPI/Retina scaling was not exercised. Treat it as best-effort.
 
+## Step 4b — If the desktop is unusable (macOS 26 / Tahoe especially)
+
+At VMware's defaults, **macOS 26 Tahoe is not a usable interactive desktop.** Opening Safari and
+playing a video froze the entire guest — clicks queued and were processed minutes later. macOS 13
+and 15 do not do this.
+
+**It is not memory.** Measured while the GUI was completely wedged: **87% memory free, 0.00M swap
+in use**, at both 4 GB and 8 GB. Adding RAM does nothing because nothing is short of RAM.
+
+**It is `WindowServer`** — the macOS compositor — software-rendering the entire framebuffer:
+
+```console
+$ ps -Ao pcpu,comm -r | head -3      # taken over SSH while the GUI was frozen
+ 191.4  .../SkyLight.framework/Resources/WindowServer
+   3.5  .../Safari
+```
+
+Safari at 3.5%; the compositor at 191%. The apps were not working — the compositor was.
+
+### What fixed it
+
+| Change | Where | Effect |
+|---|---|---|
+| **`mks.enable3d = "TRUE"`** | `.vmx`, guest powered off | **The one that mattered** |
+| `reduceMotion`, animations off | guest | marginal |
+| `reduceTransparency` | guest | **no measurable effect alone** |
+
+```console
+# host, VM powered off — absent by default on every macOS guest we created
+mks.enable3d = "TRUE"
+```
+
+```bash
+# guest, over SSH — no sudo needed, all reversible
+defaults write com.apple.universalaccess reduceMotion -bool true
+defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
+defaults write com.apple.dock launchanim -bool false
+defaults write com.apple.finder DisableAllAnimations -bool true
+killall Dock; killall Finder
+```
+
+**Measured `WindowServer` CPU, same load throughout:**
+
+| State | WindowServer | Desktop |
+|---|---|---|
+| Defaults, Safari + video | **191%** | frozen, clicks queued for minutes |
+| + `reduceTransparency` only | 104–206% | still froze |
+| **+ `mks.enable3d` + animations off** | **0.0%** idle | responsive |
+| …with Chrome playing video | ~95–127% | **usable** |
+
+One core of four is affordable. Two cores plus starved applications was not.
+
+Confirm it engaged — `vmware.log` should show the renderer binding to a host adapter:
+
+```console
+MKS: Renderer adapter luid = 0x15138
+```
+
+### Video playback: use Chrome, not Safari
+
+Even with 3D enabled, **Safari will not play video.** `VTDecoderXPCService` spawns and sits at
+**0.0% CPU** while `WebKit.GPU` idles at ~500 MB — Safari asks VideoToolbox for hardware decode,
+VMware's virtual GPU provides none, and the pipeline stalls rather than falling back.
+
+**Chrome works**, because it ships its own software decoders: its processes take ~11% / 5% / 2% CPU
+doing the decode and hand frames to `WindowServer` to composite.
+
+So: **VMware's virtual GPU gives macOS a render path but no hardware video decode.** Compositing can
+be accelerated; decoding cannot.
+
+### Things that do NOT help — ruled out by measurement
+
+- **More RAM.** Zero swap at 4 GB and 8 GB, idle and under load.
+- **`svga.enableHDPI = "FALSE"`.** Only relevant under Retina scaling; the guest framebuffer was
+  1:1 (`Resolution: 1677x920` = `UI Looks like: 1677x920`).
+- **`MemTrimRate`, `mainMem.useNamedFile`, `sched.mem.pshare.enable`.** These address *host paging*
+  of guest memory. There was no paging problem.
+- **More vCPUs.** Would likely help, but **changing core count after installation is a known
+  breakage** — [OC4VM#88](https://github.com/DrDonk/OC4VM/issues/88). Set cores before installing.
+
+### A separate, larger factor — and a security decision, not a tweak
+
+`vmware.log` also reports:
+
+```console
+IOPL_Init: Hyper-V detected by CPUID
+Monitor Mode: ULM
+You are running this virtual machine with side channel mitigations enabled.
+Side channel mitigations provide enhanced security but also lower performance.
+```
+
+With Windows' virtualization-based security active, VMware runs guests in **User Level Monitor**
+mode — user mode rather than kernel mode — which degrades **every** VM on the host, not just macOS.
+
+Two settings exist here, and neither is a performance knob:
+
+- **Disable side-channel mitigations** (*VM → Settings → Options → Advanced*) removes Spectre/
+  Meltdown-class protections against a guest reading host memory.
+- **Disabling Hyper-V/VBS** to escape ULM means turning off **Memory Integrity / Credential Guard**
+  on the host, and breaks WSL2, Docker Desktop and Windows Sandbox.
+
+**We fixed this guest without touching either.** Try `mks.enable3d` first; treat the rest as security
+decisions you make deliberately, and check corporate policy on a managed machine.
+
 ## Step 5 — Headless SSH access (the point of all this)
 
 - [ ] Guest: **System Settings → General → Sharing → Remote Login: ON**

@@ -245,6 +245,70 @@ everything else.
 
 ---
 
+## F-13 · macOS 26 is unusable as a desktop at VMware's defaults — one `.vmx` line fixes it
+
+**Status:** diagnosed and fixed 2026-08-11 · not a defect in anything · a default that is wrong for
+this guest.
+
+**Severity:** high. The symptom reads as "macOS 26 is too heavy to virtualise", which is the
+conclusion most forum threads reach. It is wrong.
+
+**Symptom:** on macOS 26 Tahoe, opening Safari and playing a video **froze the entire desktop** —
+clicks queued and executed minutes later. macOS 13 and 15 on the same host do not do this.
+
+**Reproduce:** create a macOS 26 guest per Part 3, log in, open Safari, play a video.
+
+**Diagnosis — over SSH, while the GUI was completely frozen** (which is itself the tell: `sshd`
+answered instantly):
+
+```console
+$ ps -Ao pcpu,comm -r | head -3
+ 191.4  .../SkyLight.framework/Resources/WindowServer
+   3.5  .../Safari
+$ memory_pressure -Q | tail -1
+System-wide memory free percentage: 87%
+$ sysctl -n vm.swapusage
+total = 0.00M  used = 0.00M  free = 0.00M
+```
+
+The application was idle. **The compositor was saturating the CPU**, with 87% of memory free and
+**zero swap**. Not a memory problem at any size — verified at both 4 GB and 8 GB.
+
+**Cause:** `mks.enable3d` is **absent by default** from macOS guests created through the wizard, so
+`WindowServer` software-composites every frame. macOS 26's redesigned interface demands far more
+compositing than 13 or 15, so it hits a wall those two never reach.
+
+**Fix**, guest powered off:
+
+```
+mks.enable3d = "TRUE"
+```
+
+**Measured, same load throughout:**
+
+| State | WindowServer CPU | Desktop |
+|---|---|---|
+| Defaults | **191%** | frozen |
+| + `reduceTransparency` alone | 104–206% | still frozen |
+| **+ `mks.enable3d`** + animations off | **0.0%** idle | responsive |
+| …Chrome playing video | ~95–127% | usable |
+
+Confirm with `MKS: Renderer adapter luid = ...` in `vmware.log`.
+
+**Remaining ceiling — Safari cannot play video.** `VTDecoderXPCService` spawns and sits at **0.0%
+CPU** while `WebKit.GPU` idles at ~500 MB: Safari requests hardware decode, VMware's virtual GPU
+offers none, and the pipeline stalls rather than falling back. **Chrome plays fine** using its own
+software decoders (~11% / 5% / 2% across its processes).
+
+So the virtual GPU provides **a render path but no video decode**. Compositing is accelerable;
+decoding is not.
+
+**Notable about the diagnosis:** every measurement was taken over SSH through a GUI that was wedged
+solid. A macOS guest can be completely unusable interactively and perfectly healthy as a headless
+target — which is what these VMs are for.
+
+---
+
 ## F-12 · The `osascript` remote shutdown fails on a headless guest and returns exit 0
 
 **Status:** observed 2026-08-11 · caught **before publication** by testing the recommendation.
